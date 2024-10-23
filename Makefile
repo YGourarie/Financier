@@ -1,18 +1,23 @@
 CC = gcc
-CFLAGS = -Wall -Iinclude
+CFLAGS = -Wall -I"C:/MinGW/sqlite3" -Iinclude  # Add -Iinclude to specify the header file directory
+LDFLAGS = -L"C:/MinGW/sqlite3" -lsqlite3
 SRC = $(wildcard src/*.c)   # Find all .c files in the src folder
-OBJ = $(SRC:.c=.o)          # Replace .c with .o to get the list of object files
-TARGET = banking_app
+OBJ = $(patsubst src/%.c, build/%.o, $(SRC))  # Convert src/*.c to build/*.o
+TARGET = build/banking_app.exe  # Place the executable in the build directory
 
+# Default target to build the executable
 all: $(TARGET)
 
 # Link all object files into the final executable
 $(TARGET): $(OBJ)
-	$(CC) $(OBJ) -o $(TARGET) -lsqlite3
+	$(CC) $(OBJ) -o $(TARGET) $(LDFLAGS)
 
-# Rule to compile each .c file into a .o file
-%.o: %.c
+# Rule to compile .c files into .o files under the build/ directory
+build/%.o: src/%.c
+	@if not exist build mkdir build 
 	$(CC) $(CFLAGS) -c $< -o $@
 
+# Clean up the build directory
 clean:
-	rm -f src/*.o $(TARGET)
+	del /Q build\*.o
+	del /Q build\$(notdir $(TARGET))
