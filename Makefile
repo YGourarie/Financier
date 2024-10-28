@@ -10,14 +10,19 @@ all: $(TARGET)
 
 # Link all object files into the final executable
 $(TARGET): $(OBJ)
+	@if not exist build mkdir build
 	$(CC) $(OBJ) -o $(TARGET) $(LDFLAGS)
 
 # Rule to compile .c files into .o files under the build/ directory
 build/%.o: src/%.c
-	@if not exist build mkdir build 
+	@if not exist build mkdir build
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Clean up the build directory
 clean:
-	del /Q build\*.o
-	del /Q build\$(notdir $(TARGET))
+	@if exist build\*.o del /Q build\*.o
+	@if exist build\$(notdir $(TARGET)) del /Q build\$(notdir $(TARGET))
+
+# New 'run' target that builds and then runs the executable
+run: all
+	$(TARGET)
